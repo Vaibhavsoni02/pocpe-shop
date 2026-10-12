@@ -18,16 +18,8 @@
   // Base page context for every page (read by GTM as Data Layer Variables)
   W.dataLayer.push({ page_type: page, currency: C.currency, site: "shop.pocpe.com" });
 
-  // ---------- GTM web container ----------
-  // Standard snippet. Cloudflare Google Tag Gateway rewrites the googletagmanager.com
-  // URL to the first-party measurement path at the edge.
-  if (C.gtmId) {
-    W.dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
-    const s = document.createElement("script");
-    s.async = true;
-    s.src = "https://www.googletagmanager.com/gtm.js?id=" + C.gtmId;
-    document.head.appendChild(s);
-  }
+  // GTM web container: standard snippet lives in each page <head> (after consent.js) so the
+  // Cloudflare Google tag gateway can rewrite its URL to /metrics.
 
   // ---------- Catalog + cart ----------
   const products = await (await fetch("/products.json")).json();

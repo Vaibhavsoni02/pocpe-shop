@@ -1,6 +1,6 @@
 // Fill these in. Leave a value empty to disable that piece.
 window.POCPE = {
-  gtmId: "GTM-KZF9QGPF", // Web container
+  gtmId: "GTM-KZF9QGPF", // Web container (hardcoded in each page <head> snippet too)
   // Tag gateway is done at the Cloudflare edge: Cloudflare rewrites the GTM/gtag
   // URLs in served HTML to the first-party path (e.g. /metrics). No code change needed.
   // sGTM endpoint is configured inside the web container (GA4 tag -> server_container_url).
