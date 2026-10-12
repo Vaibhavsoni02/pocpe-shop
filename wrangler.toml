@@ -1,0 +1,8 @@
+name = "pocpe-shop"
+pages_build_output_dir = "site"
+compatibility_date = "2026-10-01"
+
+# Create once:  npx wrangler kv namespace create CONSENT   -> paste the id below
+[[kv_namespaces]]
+binding = "CONSENT"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"

@@ -1,0 +1,10 @@
+[
+  {"id":"P001","name":"Brutalist Poster Pack","category":"posters","price":24,"brand":"Studio Nord","hue":12},
+  {"id":"P002","name":"Swiss Grid Poster Set","category":"posters","price":19,"brand":"Studio Nord","hue":210},
+  {"id":"P003","name":"Landing Page UI Kit","category":"templates","price":59,"brand":"Pixelwerk","hue":265},
+  {"id":"P004","name":"Pitch Deck Template","category":"templates","price":39,"brand":"Pixelwerk","hue":150},
+  {"id":"P005","name":"Line Icon Library (1,200)","category":"icons","price":29,"brand":"Glyphic","hue":190},
+  {"id":"P006","name":"3D Emoji Icon Set","category":"icons","price":35,"brand":"Glyphic","hue":330},
+  {"id":"P007","name":"Grotesk Variable Font","category":"fonts","price":49,"brand":"Typeform Co","hue":40},
+  {"id":"P008","name":"Editorial Serif Family","category":"fonts","price":69,"brand":"Typeform Co","hue":0}
+]

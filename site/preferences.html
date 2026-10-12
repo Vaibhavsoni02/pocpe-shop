@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>pocpe shop – email preferences</title><link rel="stylesheet" href="/styles.css">
+<script src="/config.js"></script><script src="/consent.js"></script></head>
+<body data-page="preferences"><main style="max-width:560px">
+<h1>Email preferences</h1>
+<p id="status" style="color:var(--mut)"></p>
+<form id="pf">
+  <label>Email<input name="email" type="email" required></label>
+  <fieldset style="border:1px solid var(--line);border-radius:8px;margin:0 0 12px">
+    <legend>Send me</legend>
+    <label><input type="checkbox" name="topics" value="new_releases" style="width:auto"> New releases</label><br>
+    <label><input type="checkbox" name="topics" value="offers" style="width:auto"> Offers and discounts</label><br>
+    <label><input type="checkbox" name="topics" value="weekly_digest" style="width:auto"> Weekly digest</label><br>
+    <label><input type="checkbox" name="topics" value="tips" style="width:auto"> Design tips</label>
+  </fieldset>
+  <label>How often<select name="frequency" style="font:inherit;padding:10px;width:100%;margin:4px 0 12px">
+    <option value="weekly">Weekly</option><option value="monthly" selected>Monthly</option><option value="important_only">Important only</option></select></label>
+  <div class="row"><button>Save preferences</button>
+  <button type="button" id="unsub" class="ghost">Unsubscribe from all</button></div>
+</form>
+<p id="meta" style="color:var(--mut);font-size:14px"></p>
+</main>
+<footer><small>© pocpe · demo store · <a href="/preferences">Email preferences</a></small></footer>
+<script src="/app.js"></script>
+<script>
+(() => {
+  const q = new URLSearchParams(location.search), t = q.get("t"), e0 = q.get("e");
+  const f = document.getElementById("pf"), st = document.getElementById("status"), meta = document.getElementById("meta");
+  const qs = t ? "?t=" + encodeURIComponent(t) : "";
+  const fill = (r) => {
+    f.email.value = r.email; f.email.readOnly = true; f.frequency.value = r.frequency;
+    f.querySelectorAll("[name=topics]").forEach((c) => (c.checked = r.topics.includes(c.value)));
+    meta.textContent = `Last confirmed ${new Date(r.consent_ts).toLocaleDateString()}. We'll ask you to reconfirm by ${new Date(r.reconsent_at).toLocaleDateString()}.`;
+  };
+  if (e0 && t) fetch(`/api/preferences?e=${encodeURIComponent(e0)}&t=${encodeURIComponent(t)}`)
+    .then((r) => r.ok ? r.json() : Promise.reject()).then(fill)
+    .catch(() => { st.textContent = "This link is invalid or expired. You can still subscribe below."; });
+  else st.textContent = "Enter your email to subscribe. To edit an existing profile, use the link from one of our emails.";
+
+  async function send(body) {
+    const r = await fetch("/api/preferences" + qs, { method: "POST", headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ...body, visitor_id: window.pocpeConsent?.visitorId, source: "preference_centre" }) });
+    const j = await r.json();
+    if (!r.ok) { st.textContent = j.error === "unauthorised" ? "That email already has a profile. Use the link from our emails to edit it." : "Something went wrong."; return; }
+    fill(j.record); st.textContent = j.record.marketing_optin ? "Saved. You're subscribed." : "Saved. You're unsubscribed from marketing email.";
+    window.dataLayer.push({ event: "email_preferences_update", event_id: crypto.randomUUID(), email_optin: j.record.marketing_optin,
+      email_topics: j.record.topics.join(","), email_frequency: j.record.frequency });
+  }
+  f.onsubmit = (ev) => { ev.preventDefault(); const d = new FormData(f);
+    send({ email: d.get("email"), topics: d.getAll("topics"), frequency: d.get("frequency") }); };
+  document.getElementById("unsub").onclick = () => { if (f.email.value) send({ email: f.email.value, unsubscribe_all: true }); else st.textContent = "Enter your email first."; };
+})();
+</script></body></html>

@@ -1,0 +1,9 @@
+{
+  "name": "pocpe-shop",
+  "private": true,
+  "scripts": {
+    "dev": "npx wrangler pages dev site --kv CONSENT",
+    "deploy": "npx wrangler pages deploy site --project-name pocpe-shop",
+    "pref-link": "node scripts/pref-link.mjs"
+  }
+}
