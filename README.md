@@ -2,7 +2,7 @@
 
 A minimal ecommerce demo (home, category, product, cart, checkout, thank-you) built to show an ideal first-party tracking setup: Google tag gateway, web and server GTM, a consent system with a server-side audit log, and an email preference centre.
 
-Live: https://shop.pocpe.com · Last updated: 2026-10-13
+Live: https://shop.pocpe.com · Last updated: 2026-10-13 · Legal: [Privacy Policy](https://shop.pocpe.com/privacy), [Terms](https://shop.pocpe.com/terms)
 
 ## Architecture
 
@@ -34,6 +34,7 @@ Details: [ARCHITECTURE.md](ARCHITECTURE.md). Operations and deploy steps: [SETUP
 | Cloudflare Web Analytics beacon loads before consent | Open: turn it off in Cloudflare |
 | `add_to_cart` hit confirmation | Open: verify in server Preview or GA4 DebugView |
 | Meta, Mixpanel and GA4 end-to-end confirmation | Open: needs a look in each tool (checklist in TEST-REPORT.md) |
+| Legal pages: Privacy Policy (/privacy) and Terms (/terms), footer links on every page, policy link in the cookie banner | Live 2026-10-13. Operator is "pocpe" (no registered entity), contact vaibhav@pocpe.com. Governing law England and Wales, minimum age 16, conservative retention periods. **Draft: not yet reviewed by counsel; retention periods are stated but not yet enforced by jobs.** |
 | Legal review (cookie list, policy text, cookieless pings before consent, email retention) | Open |
 
 A test order exists in GA4, Mixpanel and Meta (transaction `T-1791896334686`, `e2e-test@example.com`); filter it out.
