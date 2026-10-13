@@ -2,8 +2,10 @@
   "name": "pocpe-shop",
   "private": true,
   "scripts": {
-    "dev": "npx wrangler pages dev site --kv CONSENT",
-    "deploy": "npx wrangler pages deploy site --project-name pocpe-shop",
+    "dev": "npx serve site -l 3000",
+    "worker:dev": "cd worker && npx wrangler dev",
+    "worker:deploy": "cd worker && npx wrangler deploy",
+    "db:init": "cd worker && npx wrangler d1 execute pocpe-consent --remote --file=schema.sql",
     "pref-link": "node scripts/pref-link.mjs"
   }
 }

@@ -1,61 +1,44 @@
-# Setup checklist
+# Setup and operations
 
-## 1. Run locally
+Current state and architecture: see [README.md](README.md) and [ARCHITECTURE.md](ARCHITECTURE.md).
+Test results: [TEST-REPORT.md](TEST-REPORT.md).
+
+## 1. Site (GitHub Pages)
+Push to `main`; [.github/workflows/pages.yml](.github/workflows/pages.yml) publishes `site/`. `site/CNAME` is `shop.pocpe.com`.
+Cloudflare DNS: `shop` CNAME to `vaibhavsoni02.github.io`, **Proxied**, SSL/TLS mode **Full**.
+
+## 2. API Worker (consent + preferences, D1) — one-time setup
+Needs Node.js (`brew install node`) and a Cloudflare login (`npx wrangler login`).
 ```bash
-npm run dev          # http://localhost:3000
+cd worker
+npx wrangler d1 create pocpe-consent          # copy database_id into worker/wrangler.toml
+cd ..
+npm run db:init                               # creates the tables from worker/schema.sql
+cd worker && npx wrangler secret put PREF_SECRET && cd ..   # long random string
+npm run worker:deploy                         # route: shop.pocpe.com/api/*
 ```
-Open DevTools console: with `debug: true` every `dataLayer` push is logged.
-
-## 2. Deploy to Cloudflare Pages
+Verify:
 ```bash
-npm run deploy       # wrangler pages deploy site
+curl -s -X POST https://shop.pocpe.com/api/consent -H 'content-type: application/json' \
+  -H 'origin: https://shop.pocpe.com' \
+  -d '{"id":"00000000-0000-4000-8000-000000000000","v":"test","analytics":false,"marketing":false,"preferences":false,"action":"reject_all"}'
 ```
-Then Pages project → **Custom domains** → add `shop.pocpe.com` (Cloudflare creates the proxied CNAME since the zone is on the same account).
+Expect `{"ok":true,...}`. Check rows: `cd worker && npx wrangler d1 execute pocpe-consent --remote --command "select * from consent_events order by id desc limit 5"`.
 
-## Your containers
-| | |
-|---|---|
-| Web container | `GTM-KZF9QGPF` (already set in `site/config.js`) |
-| Server container | `GTM-P65HG9WX`, Stape container `wcrxndmq`, AP South (India) |
-| Server URL now | `https://sgtm.pocpe.com` (built-in) |
-| Server URL target | `https://sgtm.pocpe.com`: Stape → container → Domains → add, create the DNS record Stape lists in Cloudflare, wait for verification, then use it as `server_container_url` |
+Signed link for an email's preference page: `PREF_SECRET=<same> npm run pref-link -- user@example.com`.
+Erase a person (GDPR request): `POST /api/erase?t=<token>` with `{"email":"..."}`.
 
-## 3. Web container
-Edit [site/config.js](site/config.js) and set `gtmId: "GTM-XXXXXXX"`. In the web container:
-- **Google tag / GA4 config** with `server_container_url = https://sgtm.pocpe.com`
-- **GA4 event tag** triggered on the custom events listed in ARCHITECTURE.md, with *Send ecommerce data* from the data layer
-- Data Layer Variables: `event_id`, `user_data`, `page_type`
-- Pass `event_id` as an event parameter so it reaches the server container
+## 3. Tag Gateway (Cloudflare, set up from GTM)
+GTM web container, Admin, **Google tag gateway**, Cloudflare automated setup, measurement path `/metrics`. Pages load `/metrics/gtm.js` with a fallback to Google's URL.
 
-## 4. Tag Gateway (Cloudflare)
-Cloudflare dashboard → `pocpe.com` → **Google tag gateway** (location of the setting may vary by dashboard version) → enter your Google tag / GTM ID and measurement path `/metrics`. Cloudflare then rewrites the Google URLs on pages served through the zone. Verify in the Network tab: `gtm.js` should load from `shop.pocpe.com/metrics/...`.
+## 4. Containers (import files in [gtm/](gtm/))
+- Web `GTM-KZF9QGPF`: [gtm/web-container-import.json](gtm/web-container-import.json). Set `const - GA4 measurement ID`; `const - sGTM URL` is `https://sgtm.pocpe.com`.
+- Server `GTM-P65HG9WX` (Stape, AP South India, domain `sgtm.pocpe.com`): [gtm/server-container-import.json](gtm/server-container-import.json), or only the tag templates via [gtm/server-templates-update.json](gtm/server-templates-update.json). Fill the constants (GA4 ID, Mixpanel token, Meta pixel ID, Meta CAPI token) in the GTM UI; never commit them.
+- Template source: [gtm/src/](gtm/src/).
 
-## 5. Server container on Stape
-1. Create the sGTM container in GTM (Server type), copy its **container config string** into Stape.
-2. In Stape, add custom domain `sgtm.pocpe.com` and create the DNS record(s) it lists in Cloudflare.
-3. Paste the final URL into the web container's `server_container_url`.
+## 5. Cloudflare settings in place
+- Transform Rule (Modify Response Header) for `shop.pocpe.com`: HSTS, nosniff, Referrer-Policy, X-Frame-Options, Permissions-Policy. Use **Set static** so values are not duplicated.
+- Web Analytics auto-injection should be **off** (it loads before consent).
 
-Server container contents:
-| Item | Config |
-|---|---|
-| Client | GA4 client (default) |
-| Tag: Mixpanel | Mixpanel tag from the Tag Template Gallery; project token; track all GA4 events; `distinct_id` from client_id or hashed email after purchase |
-| Tag: Meta CAPI | Meta CAPI tag from the gallery; Pixel ID + CAPI access token; map `purchase` → Purchase, `add_to_cart` → AddToCart, `view_item` → ViewContent, `begin_checkout` → InitiateCheckout; set `event_id` from the data layer; `user_data` from the purchase event |
-| Triggers | Event name equals the GA4 events above |
-
-## 6. Verify
-- Web GTM Preview and sGTM Preview, walk home → category → product → cart → checkout → thank you.
-- `purchase` should fire exactly once; refreshing the thank-you page must not fire it again.
-- Meta Events Manager → Test Events: Purchase should show as deduplicated if the browser pixel is also running with the same `event_id`.
-- Mixpanel Live View shows the events.
-
-## 7. Consent + preference centre
-```bash
-npx wrangler kv namespace create CONSENT      # paste the id into wrangler.toml
-npx wrangler pages secret put PREF_SECRET --project-name pocpe-shop   # long random string
-PREF_SECRET=<same> npm run pref-link -- user@example.com             # signed link for emails
-```
-- Pages project → Settings → Functions → KV binding `CONSENT` (production) if not picked up from `wrangler.toml`.
-- Web GTM: enable **Consent Overview**; GA4/Google tags need `analytics_storage`, Meta/ads tags need `ad_storage` + `ad_user_data` + `ad_personalization`. Trigger on `consent_update` where needed.
-- Bump `VERSION` in [site/consent.js](site/consent.js) whenever the cookie list or policy changes; everyone is re-asked.
-- KV record shapes: `visitor:<uuid>` = current consent + history + email hash; `email:<sha256>` = topics, frequency, `consent_ts`, `reconsent_at`, history.
+## 6. Bumping the cookie policy
+Change `VERSION` in [site/consent.js](site/consent.js) whenever the cookie list or policy changes; every visitor is asked again.

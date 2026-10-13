@@ -1,0 +1,16 @@
+name = "pocpe-api"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+# Runs in front of GitHub Pages for /api/* only; everything else still goes to the static site.
+routes = [{ pattern = "shop.pocpe.com/api/*", zone_name = "pocpe.com" }]
+
+# Create once:  npx wrangler d1 create pocpe-consent   -> paste the database_id below
+[[d1_databases]]
+binding = "DB"
+database_name = "pocpe-consent"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+[vars]
+ALLOWED_ORIGIN = "https://shop.pocpe.com"
+# Secret (not stored here):  npx wrangler secret put PREF_SECRET

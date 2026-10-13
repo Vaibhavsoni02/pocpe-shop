@@ -6,7 +6,7 @@
                          Cloudflare (zone: pocpe.com, free plan)
 Browser ───────────────▶ ┌──────────────────────────────────────────────┐
                          │ shop.pocpe.com  (proxied)                    │
-                         │   CDN cache + Pages (static storefront)      │
+                         │   CDN + GitHub Pages origin; Worker on /api/*   │
                          │   Google Tag Gateway:  /metrics/*  ─────────────▶ Google tag servers
                          │   (rewrites gtm.js / gtag URLs to /metrics)  │     (gtm.js, gtag.js, collect)
                          └──────────────────────────────────────────────┘
@@ -35,7 +35,7 @@ Browser ───────────────▶ ┌──────�
 | **Server container** | Stape, `sgtm.pocpe.com` | Receives events first-party, enriches them, hashes PII, fans out to vendors. Holds all vendor secrets (Mixpanel token, Meta access token). |
 | **Data layer** | `site/app.js` | The contract. GA4 ecommerce event schema plus `event_id` on every event and `user_data` on purchase. Browser and server vendors dedupe on `event_id` and `transaction_id`. |
 | **CDN / edge** | Cloudflare | Caches and serves the static site, terminates TLS and runs Tag Gateway, so Google scripts and hits appear first-party under `/metrics`. |
-| **Hosting** | Cloudflare Pages | Static origin. Add Pages Functions later for real orders and a server-side purchase webhook. |
+| **Hosting** | GitHub Pages behind Cloudflare | Static origin. The `/api/*` routes are answered by a Cloudflare Worker with a D1 database. |
 
 ## Why this shape (Google's recommended setup)
 
@@ -59,11 +59,12 @@ Browser ───────────────▶ ┌──────�
 ## Consent and preferences
 
 ```
-Browser: consent.js ── Consent Mode default=denied ──▶ GTM loads ──▶ sGTM honours gcs/gcd consent signals
+Browser: consent.js ── Consent Mode default=denied ──▶ GTM loads ──▶ server container reads the consent signal (x-ga-gcs)
    │  save choice
    ├─ cookie pocpe_consent (365d) + localStorage          (instant, works offline)
-   └─ POST /api/consent ─▶ Pages Function ─▶ KV visitor:<uuid>  (+ server Set-Cookie, audit history, country)
-Email prefs: /preferences ─▶ POST /api/preferences ─▶ KV email:<sha256>  (topics, frequency, consent_ts, reconsent_at)
-             edits to existing profiles need an HMAC-signed link (scripts/pref-link.mjs)
+   └─ POST shop.pocpe.com/api/consent ─▶ Cloudflare Worker (pocpe-api) ─▶ D1 consent_events  (+ server Set-Cookie)
+Email prefs: /preferences ─▶ POST /api/preferences ─▶ Worker ─▶ D1 email_prefs + email_events
+             edits to existing profiles need an HMAC-signed link (scripts/pref-link.mjs); POST /api/erase deletes a person
 ```
 Re-consent triggers: policy `VERSION` change, or 12 months (cookies) / 24 months (email) since last confirmation.
+The Worker runs only on `shop.pocpe.com/api/*`; GitHub Pages keeps serving the static site.
