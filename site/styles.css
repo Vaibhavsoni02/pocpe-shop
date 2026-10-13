@@ -21,3 +21,10 @@ table{width:100%;border-collapse:collapse}
 td,th{padding:8px;border-bottom:1px solid var(--line);text-align:left}
 .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 .pills a{border:1px solid var(--line);border-radius:99px;padding:4px 12px;text-decoration:none}
+footer small a{margin:0 2px}
+main.legal{max-width:760px}
+main.legal h1{margin-top:8px}
+main.legal h2{margin-top:28px;font-size:20px}
+main.legal table{margin:12px 0;font-size:14px;display:block;overflow-x:auto}
+main.legal td,main.legal th{vertical-align:top}
+main.legal blockquote{margin:16px 0;padding:8px 16px;border-left:3px solid var(--line);color:var(--mut)}

@@ -85,7 +85,7 @@
     document.body.insertAdjacentHTML("beforeend", `<div id="cc-banner" role="dialog" aria-label="Cookie consent">
       <strong>We value your privacy</strong>
       <p>We use cookies to run the shop and, with your permission, for analytics and marketing.
-      Choose what you're happy with. You can change this any time from "Cookie settings".</p>
+      Choose what you're happy with. You can change this any time from "Cookie settings". <a href="/privacy">Privacy Policy</a></p>
       <div class="cc-row"><button id="cc-all">Accept all</button><button id="cc-none" class="ghost">Reject all</button>
       <button id="cc-cust" class="ghost">Customise</button></div></div>`);
     cc("cc-all").onclick = async () => { close(); await save({ analytics: true, marketing: true, preferences: true }, "accept_all"); };
