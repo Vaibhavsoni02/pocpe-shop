@@ -89,7 +89,7 @@
     $("#add").onclick = () => {
       const c = getCart(); c[p.id] = (c[p.id] || 0) + 1; setCart(c);
       push("add_to_cart", { currency: C.currency, value: p.price, items: [item(p, null, 0)] });
-      location.href = "/cart";
+      setTimeout(() => (location.href = "/cart"), 300); // let the add_to_cart hit leave before navigating
     };
   }
 
@@ -105,7 +105,7 @@
       main.querySelectorAll("[data-rm]").forEach((b) => b.onclick = () => {
         const id = b.dataset.rm, c = getCart(), it = cartItems().find((x) => x.item_id === id);
         push("remove_from_cart", { currency: C.currency, value: it.price * it.quantity, items: [it] });
-        delete c[id]; setCart(c); location.reload();
+        delete c[id]; setCart(c); setTimeout(() => location.reload(), 300);
       });
     }
   }
