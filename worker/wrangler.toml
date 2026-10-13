@@ -9,7 +9,7 @@ routes = [{ pattern = "shop.pocpe.com/api/*", zone_name = "pocpe.com" }]
 [[d1_databases]]
 binding = "DB"
 database_name = "pocpe-consent"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "931b85a7-e36d-4d76-a981-e5bce9720e59"
 
 [vars]
 ALLOWED_ORIGIN = "https://shop.pocpe.com"
