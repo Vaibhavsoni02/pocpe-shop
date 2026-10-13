@@ -115,5 +115,20 @@ Open: pre-consent beacon (C), server-side audit trail (B), cookie list and priva
 | Unsupported method | 405 |
 | Static site and security headers unaffected | Pass |
 
-Finding B is **resolved**. Not yet tested: the signed-link read/edit/erase happy path (needs a link made with `PREF_SECRET`), and an automated reconsent reminder (no email sender yet).
+Finding B is **resolved**. Signed-link happy path tested later the same day (below). Not yet built: an automated reconsent reminder (no email sender yet).
 Test data left in D1: visitor `00000000-0000-4000-8000-000000000000`, the browser test visitor, and email `prefs-e2e-test@example.com`.
+
+### Signed-link happy path (throwaway email, erased afterwards)
+
+| Step | Result |
+|---|---|
+| Subscribe a new email (no token needed) | Pass |
+| Read the profile with a valid token | Pass (20 of 20 reads) |
+| Read with a token signed by a different secret | Blocked (20 of 20 returned 401) |
+| Edit topics and frequency with a valid token, then read back | Pass |
+| Edit with no token | Blocked (401) |
+| Unsubscribe all | Pass, `marketing_optin` becomes false |
+| Erase with a valid token, then read | Pass, 404 after erase; erasing twice is harmless |
+
+Operational note: after `wrangler secret put`, the new secret took a few minutes to reach every Cloudflare location; for that window the same valid token alternated between 200 and 401. Wait a few minutes after rotating `PREF_SECRET` before testing, or links may appear invalid.
+**Action:** the Worker secret was set to a weak test value during testing. Replace it with a long random value (`openssl rand -hex 32`) before real use.
