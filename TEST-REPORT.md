@@ -82,3 +82,18 @@ Open: pre-consent beacon (C), server-side audit trail (B), cookie list and priva
 3. B: choose Cloudflare Pages or a Worker, so consent and preferences are stored server-side.
 4. E: add security headers.
 5. Run the manual checks in section 5, then remove the test order from reporting.
+
+## 7. Re-test (same day, after fixes)
+
+| Check | Result |
+|---|---|
+| Fix D deployed (`add_to_cart` redirect delay) | Live on shop.pocpe.com |
+| Fresh visitor: banner, defaults denied, accept all, `G100` to `G111` | Pass |
+| Finding A (server URL) | **Resolved.** Hits now go to `sgtm.pocpe.com` (the earlier result was a browser-cached `gtm.js`, 15 min cache) |
+| Published web container contains `add_to_cart` in the trigger regex and its tag | Pass (read from the served `gtm.js`) |
+| `add_to_cart` is processed by GTM (gets a `gtm.uniqueEventId`) | Pass |
+| `add_to_cart` hit visible in the browser | **Not confirmed.** Page-load events (`page_view`, `view_item`, `view_cart`, `purchase`) show as hits; events pushed after load did not appear in Resource Timing. Needs server Preview or GA4 DebugView to confirm. |
+| New: request to `stats.g.doubleclick.net` after marketing consent | Expected (Google advertising features); list it in the cookie/privacy policy |
+| Finding B (`/api/consent` 405) | Still open |
+| Finding C (Cloudflare beacon) | Still open |
+| Finding E (security headers) | Still open |
