@@ -1,10 +1,10 @@
 [
-  {"id":"P001","name":"Brutalist Poster Pack","category":"posters","price":24,"brand":"Studio Nord","hue":12},
-  {"id":"P002","name":"Swiss Grid Poster Set","category":"posters","price":19,"brand":"Studio Nord","hue":210},
-  {"id":"P003","name":"Landing Page UI Kit","category":"templates","price":59,"brand":"Pixelwerk","hue":265},
-  {"id":"P004","name":"Pitch Deck Template","category":"templates","price":39,"brand":"Pixelwerk","hue":150},
-  {"id":"P005","name":"Line Icon Library (1,200)","category":"icons","price":29,"brand":"Glyphic","hue":190},
-  {"id":"P006","name":"3D Emoji Icon Set","category":"icons","price":35,"brand":"Glyphic","hue":330},
-  {"id":"P007","name":"Grotesk Variable Font","category":"fonts","price":49,"brand":"Typeform Co","hue":40},
-  {"id":"P008","name":"Editorial Serif Family","category":"fonts","price":69,"brand":"Typeform Co","hue":0}
+  {"id":"P001","name":"The Classic Jalapeño","category":"classics","price":24,"brand":"pocpe","size":"12 in","art":{"body":"#5fa02e","face":"happy","acc":"none"},"blurb":"The original. Plump, mild-mannered, suspiciously huggable."},
+  {"id":"P002","name":"Sleepy Jalapeño","category":"classics","price":29,"brand":"pocpe","size":"12 in","art":{"body":"#6aa83a","face":"sleepy","acc":"cap"},"blurb":"Nightcap on, eyes closed, absolutely not answering emails."},
+  {"id":"P003","name":"Hot Take (Red Ripe)","category":"classics","price":27,"brand":"pocpe","size":"12 in","art":{"body":"#d9442b","face":"cool","acc":"none"},"blurb":"Left on the vine a little longer. Has opinions."},
+  {"id":"P004","name":"Mini Jalapeño","category":"minis","price":12,"brand":"pocpe","size":"4 in","art":{"body":"#5fa02e","face":"happy","acc":"none"},"blurb":"Pocket-sized heat. Clips to a bag, a keyring, a bad day."},
+  {"id":"P005","name":"Mini Taco Buddy","category":"minis","price":16,"brand":"pocpe","size":"5 in","art":{"body":"#79b33f","face":"happy","acc":"taco"},"blurb":"A mini jalapeño wearing a taco. We don't explain ourselves."},
+  {"id":"P006","name":"Jumbo Jalapeño","category":"jumbo","price":59,"brand":"pocpe","size":"36 in","art":{"body":"#4f9226","face":"happy","acc":"none"},"blurb":"Body-pillow scale. Arguably a roommate."},
+  {"id":"P007","name":"The Pickle Jar Jalapeño","category":"jumbo","price":38,"brand":"pocpe","size":"16 in","art":{"body":"#8cb33a","face":"sleepy","acc":"jar"},"blurb":"Preserved, plushified, ready for shelf duty."},
+  {"id":"P008","name":"The Patch (Set of 3)","category":"bundles","price":58,"brand":"pocpe","size":"3 × 8 in","art":{"body":"#5fa02e","face":"happy","acc":"trio"},"blurb":"A green, a red and a sleepy one. A small, soft ecosystem."}
 ]

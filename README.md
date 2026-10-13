@@ -1,6 +1,6 @@
-# shop.pocpe.com: design marketplace with first-party tracking
+# shop.pocpe.com: jalapeño plushie shop with first-party tracking
 
-A minimal ecommerce demo (home, category, product, cart, checkout, thank-you) built to show an ideal first-party tracking setup: Google tag gateway, web and server GTM, a consent system with a server-side audit log, and an email preference centre.
+A minimal ecommerce demo selling jalapeño soft plushies (home, category, product, cart, checkout, thank-you) built to show an ideal first-party tracking setup: Google tag gateway, web and server GTM, a consent system with a server-side audit log, and an email preference centre.
 
 Live: https://shop.pocpe.com · Last updated: 2026-10-13 · Legal: [Privacy Policy](https://shop.pocpe.com/privacy), [Terms](https://shop.pocpe.com/terms)
 
@@ -48,6 +48,12 @@ gtm/                  importable GTM containers and server tag-template source
 scripts/pref-link.mjs signed preference-centre link generator
 .github/workflows/    GitHub Pages deploy
 ```
+
+## Design (updated 2026-10-13)
+
+Dark editorial theme: Fraunces (display serif) with Hanken Grotesk (body) and DM Mono (labels), all self-hosted in `site/fonts/` so no request goes to a font CDN before consent. Deep green-black palette with one lime accent, grain texture and gradient mesh, asymmetric layouts, and staggered page-load reveals (disabled for reduced-motion users). Product art is generated SVG in `site/app.js`; catalogue data is `site/products.json`. The checkout now collects a delivery address.
+
+The redesign did not touch tracking: the ten data layer events keep the same names and fields (two intended changes: `shipping_tier` is now `standard`, and `purchase.user_data.address` gained street, city, region and postal code). `consent.js`, `config.js` and the GTM snippet are untouched. Verified locally with a stubbed gateway so no test traffic reaches GA4, Mixpanel or Meta.
 
 ## Data layer events
 
