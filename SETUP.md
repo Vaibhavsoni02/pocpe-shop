@@ -17,7 +17,7 @@ Then Pages project → **Custom domains** → add `shop.pocpe.com` (Cloudflare c
 |---|---|
 | Web container | `GTM-KZF9QGPF` (already set in `site/config.js`) |
 | Server container | `GTM-P65HG9WX`, Stape container `wcrxndmq`, AP South (India) |
-| Server URL now | `https://wcrxndmq.in.stape.io` (built-in) |
+| Server URL now | `https://sgtm.pocpe.com` (built-in) |
 | Server URL target | `https://sgtm.pocpe.com`: Stape → container → Domains → add, create the DNS record Stape lists in Cloudflare, wait for verification, then use it as `server_container_url` |
 
 ## 3. Web container
