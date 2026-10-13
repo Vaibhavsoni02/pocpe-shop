@@ -32,8 +32,8 @@ Server GTM  GTM-P65HG9WX on Stape (AP South, India), domain sgtm.pocpe.com (Own 
 | 12 | `https://sgtm.pocpe.com/healthy` returns 200; CNAME `sgtm` to `in.stape.io` (Ready in Stape) | Pass |
 | 13 | HTTP redirects to HTTPS (301) | Pass |
 | 14 | Browser hits use `sgtm.pocpe.com` | **Fail**, see finding A |
-| 15 | Server-side consent store (`POST /api/consent`) | **Fail**, returns 405, see finding B |
-| 16 | Email preference centre can save | **Fail** (same cause) |
+| 15 | Server-side consent store (`POST /api/consent`) | **Pass** after the Worker deploy (was 405), see section 8 |
+| 16 | Email preference centre can save | **Pass** after the Worker deploy, see section 8 |
 | 17 | `add_to_cart` hit confirmed | **Not observable**, the page navigated immediately; fixed (finding D) |
 
 Test order created: transaction `T-1791896334686`, email `e2e-test@example.com`, value 59. This is a real test event in GA4, Mixpanel and Meta; filter it out of reporting.
@@ -94,6 +94,26 @@ Open: pre-consent beacon (C), server-side audit trail (B), cookie list and priva
 | `add_to_cart` is processed by GTM (gets a `gtm.uniqueEventId`) | Pass |
 | `add_to_cart` hit visible in the browser | **Not confirmed.** Page-load events (`page_view`, `view_item`, `view_cart`, `purchase`) show as hits; events pushed after load did not appear in Resource Timing. Needs server Preview or GA4 DebugView to confirm. |
 | New: request to `stats.g.doubleclick.net` after marketing consent | Expected (Google advertising features); list it in the cookie/privacy policy |
-| Finding B (`/api/consent` 405) | Still open |
+| Finding B (`/api/consent` 405) | Resolved, see section 8 |
 | Finding C (Cloudflare beacon) | Still open |
 | Finding E (security headers) | Still open |
+
+## 8. Server-side storage (Worker + D1), tested 2026-10-13
+
+| Check | Result |
+|---|---|
+| `POST /api/consent` stores a choice in D1 | Pass |
+| Banner "Customise" with analytics only: server returns exactly that choice (analytics 1, marketing 0, preferences 0), country `IN`, reconsent date +1 year | Pass |
+| Server-set `pocpe_consent` cookie present | Pass |
+| `POST /api/preferences` for a new email | Pass (reconsent +24 months) |
+| Edit existing email with no token or a bad token | Blocked (401) |
+| Read profile with no token or a bad token | Blocked (401) |
+| Erase with no token | Blocked (401) |
+| Invalid email | 400 |
+| Foreign `Origin` header | 403 |
+| Body over 4 KB | 413 |
+| Unsupported method | 405 |
+| Static site and security headers unaffected | Pass |
+
+Finding B is **resolved**. Not yet tested: the signed-link read/edit/erase happy path (needs a link made with `PREF_SECRET`), and an automated reconsent reminder (no email sender yet).
+Test data left in D1: visitor `00000000-0000-4000-8000-000000000000`, the browser test visitor, and email `prefs-e2e-test@example.com`.

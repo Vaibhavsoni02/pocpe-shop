@@ -30,7 +30,7 @@ Details: [ARCHITECTURE.md](ARCHITECTURE.md). Operations and deploy steps: [SETUP
 | Server domain `sgtm.pocpe.com` (Stape Own CDN) | Live; hits now use it |
 | Consent banner, launcher, Consent Mode v2, 12-month reconsent | Live |
 | Security headers via Cloudflare Transform Rule | Live |
-| API Worker + D1 (consent audit log, email preferences, erase) | **Code written and SQL tested; not yet deployed.** Follow SETUP.md section 2. Until then `/api/*` returns 405 and consent is stored in the browser only. |
+| API Worker + D1 (consent audit log, email preferences, erase) | Live and tested on 2026-10-13 (details in TEST-REPORT.md section 8) |
 | Cloudflare Web Analytics beacon loads before consent | Open: turn it off in Cloudflare |
 | `add_to_cart` hit confirmation | Open: verify in server Preview or GA4 DebugView |
 | Meta, Mixpanel and GA4 end-to-end confirmation | Open: needs a look in each tool (checklist in TEST-REPORT.md) |
