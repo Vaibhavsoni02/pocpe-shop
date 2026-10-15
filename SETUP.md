@@ -60,3 +60,6 @@ This fixes GA4, Mixpanel and Meta at once, because they all read `ip_override`.
 **C. Verify.** Mixpanel: the event has `$browser`, `$os`, a real city and country, and after an order `$user_id`. The profile has `last_purchase_date`, `first_seen`, `ltv`, `purchase_count`. GA4 DebugView: the `purchase` event shows a `user_id` (hash). In GA4 Admin, Reporting identity, choose Blended so User-ID is used.
 
 **Known limits.** `ltv` and `purchase_count` use Mixpanel `$add`, which is not idempotent: a duplicate `purchase` hit would be counted twice. `first_seen` is set when the customer is first identified (their first order), not at their first visit. A SHA-256 hash of an email is pseudonymous, not anonymous; Google's User-ID policy discourages PII, so consider an HMAC with a secret if you want it unguessable.
+
+## 8. Deploys and stale caches (important)
+Cloudflare caches site files at each edge location for about 10 minutes, and different locations refresh at different times, so right after a deploy one visitor can get the new HTML with an old script. Every page therefore loads its assets with a version query (for example `/consent.js?v=20261015b`). **When you change `consent.js`, `app.js`, `config.js` or `styles.css`, bump the `?v=` value in all `site/*.html` files** (search and replace the old value) so the new HTML can only ever load the matching new files.
