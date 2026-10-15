@@ -54,6 +54,12 @@
     const id = W.POCPE && W.POCPE.gtmId;
     if (gtmLoaded || !id) return;
     gtmLoaded = true;
+    // The Cloudflare tag gateway can pre-boot the container (inert: no hits until the gtm.js start message).
+    // It has then already consumed the queued events, so just start it; replaying would double-count them.
+    if (W.google_tag_manager && W.google_tag_manager[id]) {
+      W.dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
+      return;
+    }
     const isCmd = (x) => Object.prototype.toString.call(x) === "[object Arguments]"; // gtag("consent", ...) calls
     const q = W.dataLayer.splice(0);
     const cmds = q.filter(isCmd), rest = q.filter((x) => !isCmd(x));
