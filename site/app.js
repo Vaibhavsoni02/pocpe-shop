@@ -183,29 +183,38 @@
     $("#add").onclick = () => {
       const c = getCart(); c[p.id] = (c[p.id] || 0) + 1; setCart(c);
       push("add_to_cart", { currency: C.currency, value: p.price, items: [item(p, null, 0)] });
-      setTimeout(() => (location.href = "/cart"), 300); // let the add_to_cart hit leave before navigating
+      // Instant feedback and no page change, so the tracking hit is never cut off by a navigation.
+      const b = $("#add"), q = getCart()[p.id];
+      b.textContent = "Added · add another";
+      if (!$("#viewbag")) b.parentElement.insertAdjacentHTML("beforeend", ' <a id="viewbag" class="ulink" href="/cart">View bag (' + cartCount() + ') →</a>');
+      else $("#viewbag").textContent = "View bag (" + cartCount() + ") →";
+      const bag = $("#cart-count"); bag.classList.remove("bump"); void bag.offsetWidth; bag.classList.add("bump");
     };
   }
 
   if (page === "cart") {
-    const items = cartItems();
-    if (!items.length) main.innerHTML = `<div class="page-head"><p class="eyebrow r" ${rise(0)}>Your bag</p><h1 class="display r" ${rise(1)}>Empty<br><em>so far.</em></h1>
-      <p class="lede r" ${rise(2)}>Nothing in here yet. <a class="ulink" href="/">Go find something soft.</a></p></div>`;
-    else {
+    const drawCart = (first) => {
+      const items = cartItems();
+      if (!items.length) {
+        main.innerHTML = `<div class="page-head"><p class="eyebrow">Your bag</p><h1 class="display">Empty<br><em>so far.</em></h1>
+          <p class="lede">Nothing in here yet. <a class="ulink" href="/">Go find something soft.</a></p></div>`;
+        return;
+      }
       main.innerHTML = `<div class="page-head"><p class="eyebrow r" ${rise(0)}>Your bag</p><h1 class="display r" ${rise(1)}>Cart</h1></div>
-        <div class="lines">${items.map((i, n) => `<div class="line r" ${rise(n + 2)}>
+        <div class="lines">${items.map((i, n) => `<div class="line ${first ? "r" : ""}" ${rise(n + 2)}>
           <div class="art tone-${n % 4}">${plush(byId[i.item_id])}</div>
           <div><strong>${esc(i.item_name)}</strong><span class="mut">${esc(byId[i.item_id].size)} · qty ${i.quantity}</span></div>
           <div class="amt">${money(i.price * i.quantity)}</div>
           <button class="ghost" data-rm="${i.item_id}">Remove</button></div>`).join("")}</div>
         <div class="totalbar"><span class="mut">Total</span><strong>${money(cartTotal())}</strong><a class="btn" href="/checkout">Checkout</a></div>`;
-      push("view_cart", { currency: C.currency, value: cartTotal(), items });
+      if (first) push("view_cart", { currency: C.currency, value: cartTotal(), items });
       main.querySelectorAll("[data-rm]").forEach((b) => b.onclick = () => {
         const id = b.dataset.rm, c = getCart(), it = cartItems().find((x) => x.item_id === id);
         push("remove_from_cart", { currency: C.currency, value: it.price * it.quantity, items: [it] });
-        delete c[id]; setCart(c); setTimeout(() => location.reload(), 300);
+        delete c[id]; setCart(c); drawCart(false); // update in place: instant, no reload
       });
-    }
+    };
+    drawCart(true);
   }
 
   if (page === "checkout") {

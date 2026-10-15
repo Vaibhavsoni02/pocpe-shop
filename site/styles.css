@@ -193,3 +193,7 @@ main.legal a,#status a{color:var(--acc)}
 #cc-launch{font:500 11px var(--mono)!important;text-transform:uppercase;letter-spacing:.1em;background:rgba(11,17,12,.9)!important}
 
 @media(prefers-reduced-motion:reduce){.r{opacity:1;transform:none;animation:none}.ticker div,.hero-art .stamp{animation:none}html{scroll-behavior:auto}}
+header.site nav a.bag b.bump{display:inline-block;animation:bump .45s cubic-bezier(.2,.7,.2,1)}
+@keyframes bump{40%{transform:scale(1.5)}}
+button#add.done{filter:none}
+#viewbag{margin-left:18px;white-space:nowrap;display:inline-block;margin-top:14px}
