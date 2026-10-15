@@ -132,3 +132,19 @@ Test data left in D1: visitor `00000000-0000-4000-8000-000000000000`, the browse
 
 Operational note: after `wrangler secret put`, the new secret took a few minutes to reach every Cloudflare location; for that window the same valid token alternated between 200 and 401. Wait a few minutes after rotating `PREF_SECRET` before testing, or links may appear invalid.
 **Action:** the Worker secret was set to a weak test value during testing. Replace it with a long random value (`openssl rand -hex 32`) before real use.
+
+## 9. Tags firing before consent: found and fixed (2026-10-15)
+
+**Finding.** A fresh visitor who had not clicked anything already had the GTM container running, and cookie-less hits (`page_view`, `view_item_list`, with a client ID, `gcs=G100`) were sent to `sgtm.pocpe.com`. This is Consent Mode "advanced" behaviour, which many regulators do not accept for strict opt-in.
+
+**Fix.** The GTM snippet was removed from all nine page heads. `site/consent.js` now loads GTM only after the visitor accepts analytics or marketing; events queued before that are replayed in the order GTM expects (consent commands, page context, `gtm.js`, events).
+
+| Check (local, GTM stubbed) | Result |
+|---|---|
+| Fresh visitor, no click | No GTM request, no GTM script, events held in the queue |
+| Reject all | GTM never loads |
+| Returning visitor who rejected | GTM never loads, no banner |
+| Accept analytics later via Cookie settings | GTM loads once, queue order: consent default, consent update, page context, gtm.js, events |
+| Returning visitor who consented | GTM loads at page start, same order as before the change |
+
+Still outside our code: the Cloudflare Web Analytics beacon is injected by Cloudflare and must be switched off in the dashboard. Privacy Policy section 3 was updated to match.

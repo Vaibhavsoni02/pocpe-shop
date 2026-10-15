@@ -44,7 +44,33 @@
       consent_analytics: !!rec.analytics, consent_marketing: !!rec.marketing, consent_preferences: !!rec.preferences,
       consent_version: rec.v, consent_ts: rec.ts, consent_reconsent_at: rec.reconsent_at });
   };
+  // ---- GTM loads ONLY after analytics or marketing consent ("basic" consent mode) ----
+  // Before that, no Google, Mixpanel or Meta code runs and no request leaves the page.
+  // Events already queued in dataLayer (page context, view_item_list, ...) are replayed in the order
+  // GTM expects: consent commands, page context, gtm.js, then the events. GTM id comes from config.js.
+  const wantsTags = (rec) => !!rec && (rec.analytics === true || rec.marketing === true);
+  let gtmLoaded = false;
+  function loadGTM() {
+    const id = W.POCPE && W.POCPE.gtmId;
+    if (gtmLoaded || !id) return;
+    gtmLoaded = true;
+    const isCmd = (x) => Object.prototype.toString.call(x) === "[object Arguments]"; // gtag("consent", ...) calls
+    const q = W.dataLayer.splice(0);
+    const cmds = q.filter(isCmd), rest = q.filter((x) => !isCmd(x));
+    const isEvt = (x) => "event" in x || "ecommerce" in x;
+    cmds.concat(rest.filter((x) => !isEvt(x))).forEach((x) => W.dataLayer.push(x));
+    W.dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
+    const add = (src, onerror) => {
+      const s = document.createElement("script");
+      s.async = true; s.src = src; if (onerror) s.onerror = onerror;
+      document.head.appendChild(s);
+    };
+    // first-party path served by the Cloudflare Google tag gateway, with Google's URL as a fallback
+    add("/metrics/gtm.js?id=" + id, () => add("https://www.googletagmanager.com/gtm.js?id=" + id));
+    rest.filter(isEvt).forEach((x) => W.dataLayer.push(x));
+  }
   if (!expired(stored)) announce(stored, "restored");
+  if (!expired(stored) && wantsTags(stored)) loadGTM();
 
   // ---- save: local first, then server ----
   async function save(choice, action) {
@@ -54,6 +80,7 @@
     writeLocal(rec); stored = rec;
     gtag("consent", "update", modeState(rec));
     announce(rec, action);
+    if (wantsTags(rec)) loadGTM(); // first accept loads GTM now; the consent update above is already queued before it
     try { // server copy; also lets the server set a longer-lived first-party cookie (Safari ITP)
       await fetch("/api/consent", { method: "POST", headers: { "content-type": "application/json" },
         body: JSON.stringify({ ...rec, page: location.pathname }), keepalive: true });

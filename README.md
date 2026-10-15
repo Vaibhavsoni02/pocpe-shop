@@ -28,7 +28,7 @@ Details: [ARCHITECTURE.md](ARCHITECTURE.md). Operations and deploy steps: [SETUP
 | Google tag gateway (`gtm.js` from `/metrics`, with fallback to Google) | Live |
 | Web container and server container published | Live |
 | Server domain `sgtm.pocpe.com` (Stape Own CDN) | Live; hits now use it |
-| Consent banner, launcher, Consent Mode v2, 12-month reconsent | Live |
+| Consent banner, launcher, Consent Mode v2, 12-month reconsent; GTM and all tags load only after analytics or marketing consent (nothing runs before) | Live 2026-10-15 |
 | Security headers via Cloudflare Transform Rule | Live |
 | API Worker + D1 (consent audit log, email preferences, erase) | Live and tested on 2026-10-13 (details in TEST-REPORT.md section 8) |
 | Cloudflare Web Analytics beacon loads before consent | Open: turn it off in Cloudflare |
@@ -53,7 +53,7 @@ scripts/pref-link.mjs signed preference-centre link generator
 
 Dark editorial theme: Fraunces (display serif) with Hanken Grotesk (body) and DM Mono (labels), all self-hosted in `site/fonts/` so no request goes to a font CDN before consent. Deep green-black palette with one lime accent, grain texture and gradient mesh, asymmetric layouts, and staggered page-load reveals (disabled for reduced-motion users). Product art is generated SVG in `site/app.js`; catalogue data is `site/products.json`. The checkout now collects a delivery address.
 
-The redesign did not touch tracking: the ten data layer events keep the same names and fields (two intended changes: `shipping_tier` is now `standard`, and `purchase.user_data.address` gained street, city, region and postal code). `consent.js`, `config.js` and the GTM snippet are untouched. Verified locally with a stubbed gateway so no test traffic reaches GA4, Mixpanel or Meta.
+The redesign did not touch tracking: the ten data layer events keep the same names and fields (two intended changes: `shipping_tier` is now `standard`, and `purchase.user_data.address` gained street, city, region and postal code). `config.js` is untouched; the GTM loader now lives in `consent.js` (see Consent below). Verified locally with a stubbed gateway so no test traffic reaches GA4, Mixpanel or Meta.
 
 ## Data layer events
 
@@ -63,6 +63,7 @@ The redesign did not touch tracking: the ten data layer events keep the same nam
 
 - Defaults denied, opt-in, equal Accept all and Reject all, per-category choices (analytics, marketing, preferences), persistent "Cookie settings" launcher.
 - Choice stored in a first-party cookie and localStorage, and (once the Worker is deployed) as an append-only row in D1 with version, timestamp, country and reconsent date.
+- GTM is not loaded until the visitor accepts analytics or marketing, so nothing is sent before consent and "Reject all" keeps every tag off. Consent Mode still tells the tags what was granted.
 - Server tags check Consent Mode (`x-ga-gcs`): Mixpanel needs analytics, Meta needs ad storage.
 - Email preferences: topics, frequency, last-confirmed and reconsent dates (24 months), signed links for edits, erase endpoint.
 - Not legal advice. The wording and cookie list need review before real traffic.
