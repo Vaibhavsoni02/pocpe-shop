@@ -19,6 +19,14 @@
   // Base page context for every page (read by GTM as Data Layer Variables)
   W.dataLayer.push({ page_type: page, currency: C.currency, site: "shop.pocpe.com" });
 
+  // ---------- Identity (pseudonymous, only with analytics consent) ----------
+  // user_id = SHA-256 of the lowercased, trimmed email. The same value goes to GA4 (user_id) and Mixpanel ($user_id),
+  // so visits before and after an order join up. It is created at checkout and forgotten if analytics consent is withdrawn.
+  const analyticsOk = () => !!(W.pocpeConsent && W.pocpeConsent.granted("analytics"));
+  const sha256 = async (s) => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)))].map((b) => b.toString(16).padStart(2, "0")).join("");
+  const getUid = () => { try { return analyticsOk() ? localStorage.getItem("pocpe_uid") : null; } catch { return null; } };
+  { const uid = getUid(); if (uid) W.dataLayer.push({ user_id: uid }); } // context for every page, before any event
+
   // GTM web container: standard snippet lives in each page <head> (after consent.js) so the
   // Cloudflare Google tag gateway serves it from /metrics.
 
@@ -245,13 +253,15 @@
     push("begin_checkout", ecom);
     let shipped = false;
     $("#f").addEventListener("focusin", () => { if (!shipped) { shipped = true; push("add_shipping_info", { ...ecom, shipping_tier: "standard" }); } }, { once: true });
-    $("#f").onsubmit = (e) => {
+    $("#f").onsubmit = async (e) => {
       e.preventDefault();
       const d = Object.fromEntries(new FormData(e.target));
+      let uid = null;
+      if (analyticsOk()) { uid = await sha256(String(d.email).trim().toLowerCase()); try { localStorage.setItem("pocpe_uid", uid); } catch {} }
       push("add_payment_info", { ...ecom, payment_type: "demo" });
       if (d.optin) fetch("/api/preferences", { method: "POST", headers: { "content-type": "application/json" }, keepalive: true,
         body: JSON.stringify({ email: d.email, topics: ["new_releases", "offers"], source: "checkout", visitor_id: W.pocpeConsent?.visitorId }) }).catch(() => {});
-      const order = { transaction_id: "T-" + Date.now(), user: d, ecom };
+      const order = { transaction_id: "T-" + Date.now(), user: d, ecom, uid };
       sessionStorage.setItem("order", JSON.stringify(order));
       localStorage.removeItem("cart");
       location.href = "/thankyou";
@@ -269,7 +279,9 @@
     // Fire purchase once. transaction_id is the dedup key for GA4; event_id for Meta CAPI.
     if (!sessionStorage.getItem("purchase_sent:" + o.transaction_id)) {
       sessionStorage.setItem("purchase_sent:" + o.transaction_id, "1");
+      const uid = analyticsOk() ? (o.uid || getUid()) : null;
       push("purchase", { ...o.ecom, transaction_id: o.transaction_id, tax: 0, shipping: 0 }, {
+        ...(uid ? { user_id: uid } : {}),
         // Raw values: the server container hashes them (SHA-256) before sending to ad platforms.
         user_data: {
           email: o.user.email, phone_number: o.user.phone || undefined,

@@ -78,6 +78,21 @@
                     "value": "{{DLV - page_type}}"
                   }
                 ]
+              },
+              {
+                "type": "MAP",
+                "map": [
+                  {
+                    "type": "TEMPLATE",
+                    "key": "parameter",
+                    "value": "user_id"
+                  },
+                  {
+                    "type": "TEMPLATE",
+                    "key": "parameterValue",
+                    "value": "{{DLV - user_id}}"
+                  }
+                ]
               }
             ]
           }
@@ -639,6 +654,30 @@
             "type": "TEMPLATE",
             "key": "name",
             "value": "user_data.address.postal_code"
+          }
+        ]
+      },
+      {
+        "accountId": "6381579928",
+        "containerId": "266631706",
+        "variableId": "18",
+        "name": "DLV - user_id",
+        "type": "v",
+        "parameter": [
+          {
+            "type": "INTEGER",
+            "key": "dataLayerVersion",
+            "value": "2"
+          },
+          {
+            "type": "BOOLEAN",
+            "key": "setDefaultValue",
+            "value": "false"
+          },
+          {
+            "type": "TEMPLATE",
+            "key": "name",
+            "value": "user_id"
           }
         ]
       },

@@ -46,7 +46,7 @@ const user = {
   fn: pick(addr.sha256_first_name, addr.first_name),
   ln: pick(addr.sha256_last_name, addr.last_name),
   country: pick(addr.sha256_country, addr.country),
-  external_id: e.client_id,
+  external_id: e.user_id || e.client_id, // the hashed-email user_id once known, else the analytics client id
   client_ip_address: e.ip_override,
   client_user_agent: e.user_agent
 };

@@ -14,6 +14,7 @@
 <tr><th>Data</th><th>Examples</th><th>Why we use it</th><th>Legal basis</th></tr>
 <tr><td>Browsing and device data</td><td>Pages and products viewed, cart actions, approximate location (country), browser and device type, a random visitor identifier</td><td>Understand how the shop is used and improve it</td><td>Your consent (analytics cookies)</td></tr>
 <tr><td>Advertising measurement data</td><td>Order value, items, hashed email, phone number and contact details, IP address, browser details</td><td>Measure whether our ads lead to purchases</td><td>Your consent (marketing cookies)</td></tr>
+<tr><td>Customer profile (analytics)</td><td>A one-way hash of your email (a pseudonymous ID), your last purchase date, total spend and number of orders</td><td>Link your visits and orders so we can understand repeat customers</td><td>Your consent (analytics cookies)</td></tr>
 <tr><td>Order details</td><td>Email, first and last name, delivery address, country, phone number (optional), items ordered and value</td><td>Process, deliver and keep records of your order</td><td>Contract; legal obligation (tax and accounting)</td></tr>
 <tr><td>Cookie consent records</td><td>Random visitor ID, your choices, policy version, time of choice, country</td><td>Show we respected your choices and ask again when due</td><td>Legal obligation; our legitimate interest in proving consent</td></tr>
 <tr><td>Email preferences</td><td>Email, topics, frequency, how you signed up, dates you confirmed</td><td>Record and honour the emails you chose, and your changes and unsubscribes</td><td>Your consent</td></tr>
@@ -21,6 +22,8 @@
 </table>
 <p>We do not make automated decisions that have legal or similarly significant effects about you, and we do not sell personal data.</p>
 <p>The shop is currently in demonstration mode. Checkout takes no payment and nothing is shipped, and we do not yet keep an order history; the order details above apply once orders are live. When we start delivering orders we will share your name, delivery address and phone number with our delivery partners, and name them in this policy. We also do not yet send marketing email: we store the preferences you set, and will name our email provider in this policy before we start sending.</p>
+
+<p>If you accept analytics cookies and place an order, we create a pseudonymous ID from your email address (a one-way hash, not your email) and keep it in your browser. We use it in Google Analytics and Mixpanel to connect your visits and orders. If you withdraw analytics consent, we delete it from your browser.</p>
 
 <h2>3. Cookies and similar technologies</h2>
 <p>On your first visit we ask you to accept or reject analytics, marketing and preferences cookies. Necessary cookies are always on. Nothing optional runs until you choose, and you can change your choice at any time with the "Cookie settings" link at the bottom of every page. We ask again after 12 months or when this policy changes.</p>
@@ -40,7 +43,7 @@
 <tr><th>Recipient</th><th>What for</th><th>Data</th><th>Where processed</th></tr>
 <tr><td>Google (Analytics, Tag Manager)</td><td>Analytics and tag management</td><td>Browsing data, visitor identifier</td><td>As set out in Google's own terms</td></tr>
 <tr><td>Stape (server-side tagging host)</td><td>Receives analytics events from your browser and forwards them to our other tools</td><td>Browsing and order data, IP address</td><td>India</td></tr>
-<tr><td>Mixpanel</td><td>Product analytics</td><td>Browsing and order events, visitor identifier, IP address</td><td>Mixpanel's India data location</td></tr>
+<tr><td>Mixpanel</td><td>Product analytics</td><td>Browsing and order events, visitor identifier, IP address, and the customer profile described above</td><td>Mixpanel's India data location</td></tr>
 <tr><td>Meta (Conversions API)</td><td>Advertising measurement, only if you accept marketing cookies</td><td>Hashed email and phone, order value, IP address, browser details</td><td>As set out in Meta's own terms</td></tr>
 <tr><td>Cloudflare</td><td>Delivers the site, protects it, and stores consent and preference records</td><td>Requests and IP addresses; consent and email-preference records</td><td>Global network; our database is in Asia-Pacific</td></tr>
 <tr><td>GitHub (Microsoft)</td><td>Hosts the website files</td><td>Website requests</td><td>As set out in GitHub's own terms</td></tr>

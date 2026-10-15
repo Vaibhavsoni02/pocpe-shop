@@ -34,6 +34,7 @@ Details: [ARCHITECTURE.md](ARCHITECTURE.md). Operations and deploy steps: [SETUP
 | Pre-consent third-party requests: Cloudflare Web Analytics beacon and the tag-gateway health check to Google | Open: both injected outside our code; turn off Web Analytics in Cloudflare and review the gateway's tag-injection setting |
 | `add_to_cart` hit confirmation | Done 2026-10-15 (instant add-to-cart, hit reaches the server) |
 | Meta, Mixpanel and GA4 end-to-end confirmation | Open: needs a look in each tool (checklist in TEST-REPORT.md) |
+| Identity: pseudonymous `user_id` (email hash) to GA4 and Mixpanel, Mixpanel People profile on purchase, visitor IP and user-agent fixes | Code, templates and patches written and tested locally 2026-10-15; **needs your container imports and the Cloudflare IP transformation (SETUP.md section 7)** |
 | Legal pages: Privacy Policy (/privacy) and Terms (/terms), footer links on every page, policy link in the cookie banner | Live 2026-10-13. Operator is "pocpe" (no registered entity), contact vaibhav@pocpe.com. Governing law England and Wales, minimum age 16, conservative retention periods. **Draft: not yet reviewed by counsel; retention periods are stated but not yet enforced by jobs.** |
 | Legal review (cookie list, policy text, cookieless pings before consent, email retention) | Open |
 

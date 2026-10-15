@@ -86,6 +86,7 @@
     writeLocal(rec); stored = rec;
     gtag("consent", "update", modeState(rec));
     announce(rec, action);
+    if (!rec.analytics) { try { localStorage.removeItem("pocpe_uid"); } catch {} } // withdrawn: forget the pseudonymous id
     if (wantsTags(rec)) loadGTM(); // first accept loads GTM now; the consent update above is already queued before it
     try { // server copy; also lets the server set a longer-lived first-party cookie (Safari ITP)
       await fetch("/api/consent", { method: "POST", headers: { "content-type": "application/json" },
@@ -145,6 +146,7 @@
   }
 
   // public API for other scripts (e.g. preferences page)
-  W.pocpeConsent = { open: openModal, get: () => stored, visitorId, hasMarketing: () => !!(stored && stored.marketing) };
+  W.pocpeConsent = { open: openModal, get: () => stored, visitorId, hasMarketing: () => !!(stored && stored.marketing),
+    granted: (cat) => !!(stored && !expired(stored) && stored[cat] === true) };
   document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", ui) : ui();
 })();

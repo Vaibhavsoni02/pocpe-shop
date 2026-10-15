@@ -42,3 +42,21 @@ GTM web container, Admin, **Google tag gateway**, Cloudflare automated setup, me
 
 ## 6. Bumping the cookie policy
 Change `VERSION` in [site/consent.js](site/consent.js) whenever the cookie list or policy changes; every visitor is asked again.
+
+## 7. Identity, geolocation and the Mixpanel profile (2026-10-15)
+
+**What the website does.** With analytics consent only, checkout creates `user_id` = SHA-256 of the lowercased, trimmed email, keeps it in `localStorage` (`pocpe_uid`) and puts it in the data layer on every page and on `purchase`. Withdrawing analytics consent deletes it.
+
+**A. Fix the visitor IP (cause of "Singapore" in Mixpanel and GA4).** `sgtm.pocpe.com` is proxied by Cloudflare, so the server container sees Cloudflare's edge IP. In the server container:
+1. Variables, New, type **Request Header**, header name `cf-connecting-ip`, name it `Req Header - CF Connecting IP`.
+2. Transformations, New, type **Augment event**. Matching condition: Client Name equals your GA4 client. Add parameter `ip_override` = `{{Req Header - CF Connecting IP}}`. Leave it applying to **all tags**.
+3. Preview a hit and check Event Data shows `ip_override` as the visitor's address, then publish.
+This fixes GA4, Mixpanel and Meta at once, because they all read `ip_override`.
+
+**B. Import the patches (they contain no secrets or IDs).**
+- Server, Admin, Import Container, Merge, Overwrite conflicting: [gtm/server-templates-update.json](gtm/server-templates-update.json). It updates the Mixpanel event and Meta templates and adds the **Mixpanel People (profile set)** template, a `CE - purchase only` trigger and the tag **Mixpanel People - purchase (profile set)**.
+- Web, same way: [gtm/web-user-id-patch.json](gtm/web-user-id-patch.json). It adds `DLV - user_id` and a `user_id` row on the Google tag.
+
+**C. Verify.** Mixpanel: the event has `$browser`, `$os`, a real city and country, and after an order `$user_id`. The profile has `last_purchase_date`, `first_seen`, `ltv`, `purchase_count`. GA4 DebugView: the `purchase` event shows a `user_id` (hash). In GA4 Admin, Reporting identity, choose Blended so User-ID is used.
+
+**Known limits.** `ltv` and `purchase_count` use Mixpanel `$add`, which is not idempotent: a duplicate `purchase` hit would be counted twice. `first_seen` is set when the customer is first identified (their first order), not at their first visit. A SHA-256 hash of an email is pseudonymous, not anonymous; Google's User-ID policy discourages PII, so consider an HMAC with a secret if you want it unguessable.
