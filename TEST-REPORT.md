@@ -92,7 +92,7 @@ Open: pre-consent beacon (C), server-side audit trail (B), cookie list and priva
 | Finding A (server URL) | **Resolved.** Hits now go to `sgtm.pocpe.com` (the earlier result was a browser-cached `gtm.js`, 15 min cache) |
 | Published web container contains `add_to_cart` in the trigger regex and its tag | Pass (read from the served `gtm.js`) |
 | `add_to_cart` is processed by GTM (gets a `gtm.uniqueEventId`) | Pass |
-| `add_to_cart` hit visible in the browser | **Not confirmed.** Page-load events (`page_view`, `view_item`, `view_cart`, `purchase`) show as hits; events pushed after load did not appear in Resource Timing. Needs server Preview or GA4 DebugView to confirm. |
+| `add_to_cart` hit visible in the browser | **Confirmed 2026-10-15 (see section 9).** Earlier: not confirmed. Page-load events (`page_view`, `view_item`, `view_cart`, `purchase`) show as hits; events pushed after load did not appear in Resource Timing. Needs server Preview or GA4 DebugView to confirm. |
 | New: request to `stats.g.doubleclick.net` after marketing consent | Expected (Google advertising features); list it in the cookie/privacy policy |
 | Finding B (`/api/consent` 405) | Resolved, see section 8 |
 | Finding C (Cloudflare beacon) | Still open |
@@ -148,3 +148,19 @@ Operational note: after `wrangler secret put`, the new secret took a few minutes
 | Returning visitor who consented | GTM loads at page start, same order as before the change |
 
 Still outside our code: the Cloudflare Web Analytics beacon is injected by Cloudflare and must be switched off in the dashboard. Privacy Policy section 3 was updated to match.
+
+### Production verification of the consent gate (2026-10-15)
+
+Discovery: Cloudflare's Google tag gateway injects its own GTM bootstrap into every page at the edge. It is inert (no `gtm.js` start message, so no tag fires and nothing is sent), and starts only when our loader pushes the start message after consent. Our loader therefore does not replay queued events when the container is already pre-booted (replaying double-counted `view_item_list`).
+
+| Check (production, real browser) | Result |
+|---|---|
+| Truly fresh visitor, before any click: cookies | None |
+| Requests to the analytics server (`sgtm.pocpe.com`) | 0 |
+| Local/session storage | Empty |
+| After Accept all: `page_view`, `view_item`, `scroll` | One each, consent `G111`, no duplicates |
+| Add to cart: runs instantly (13 ms), no redirect, bag counter updates | Pass |
+| `add_to_cart` hit reaches the server | **Confirmed** (value, item, `G111`) |
+| Cart: remove updates in place, no reload (local test) | Pass |
+
+Remaining third-party requests before consent, both injected outside our code: Cloudflare Web Analytics beacon (turn off in Cloudflare) and the tag-gateway health check to `www.googletagmanager.com` (a Google-side setting of the gateway). Note: Google cookies seen on a "fresh" visitor during testing were stale `.pocpe.com` cookies from earlier consenting sessions; clear cookies with the domain attribute when re-testing.

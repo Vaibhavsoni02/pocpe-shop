@@ -31,8 +31,8 @@ Details: [ARCHITECTURE.md](ARCHITECTURE.md). Operations and deploy steps: [SETUP
 | Consent banner, launcher, Consent Mode v2, 12-month reconsent; GTM and all tags load only after analytics or marketing consent (nothing runs before) | Live 2026-10-15 |
 | Security headers via Cloudflare Transform Rule | Live |
 | API Worker + D1 (consent audit log, email preferences, erase) | Live and tested on 2026-10-13 (details in TEST-REPORT.md section 8) |
-| Cloudflare Web Analytics beacon loads before consent | Open: turn it off in Cloudflare |
-| `add_to_cart` hit confirmation | Open: verify in server Preview or GA4 DebugView |
+| Pre-consent third-party requests: Cloudflare Web Analytics beacon and the tag-gateway health check to Google | Open: both injected outside our code; turn off Web Analytics in Cloudflare and review the gateway's tag-injection setting |
+| `add_to_cart` hit confirmation | Done 2026-10-15 (instant add-to-cart, hit reaches the server) |
 | Meta, Mixpanel and GA4 end-to-end confirmation | Open: needs a look in each tool (checklist in TEST-REPORT.md) |
 | Legal pages: Privacy Policy (/privacy) and Terms (/terms), footer links on every page, policy link in the cookie banner | Live 2026-10-13. Operator is "pocpe" (no registered entity), contact vaibhav@pocpe.com. Governing law England and Wales, minimum age 16, conservative retention periods. **Draft: not yet reviewed by counsel; retention periods are stated but not yet enforced by jobs.** |
 | Legal review (cookie list, policy text, cookieless pings before consent, email retention) | Open |
