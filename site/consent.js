@@ -76,7 +76,12 @@
     rest.filter(isEvt).forEach((x) => W.dataLayer.push(x));
   }
   if (!expired(stored)) announce(stored, "restored");
-  if (!expired(stored) && wantsTags(stored)) loadGTM();
+  if (!expired(stored) && wantsTags(stored)) {
+    // The Google tag reads user_id once, when it initialises. Put the pseudonymous id (created at checkout, analytics
+    // consent only) in the data layer BEFORE GTM starts, otherwise the order's hit goes out without it.
+    if (stored.analytics === true) { try { const u = localStorage.getItem("pocpe_uid"); if (u) W.dataLayer.push({ user_id: u }); } catch {} }
+    loadGTM();
+  }
 
   // ---- save: local first, then server ----
   async function save(choice, action) {
