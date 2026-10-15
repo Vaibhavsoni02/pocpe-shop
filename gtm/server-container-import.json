@@ -165,7 +165,7 @@
           {
             "type": "TEMPLATE",
             "key": "host",
-            "value": "api-in.mixpanel.com"
+            "value": "api.mixpanel.com"
           }
         ]
       },

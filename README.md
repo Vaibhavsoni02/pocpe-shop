@@ -14,7 +14,7 @@ Browser ── shop.pocpe.com (Cloudflare proxy, GitHub Pages origin)
    └─ Web GTM (GTM-KZF9QGPF) ──▶ https://sgtm.pocpe.com
                                   Server GTM (GTM-P65HG9WX, Stape, AP South India, Own CDN)
                                     ├─ GA4 (G-LK55NDVF5W)
-                                    ├─ Mixpanel (India data residency)
+                                    ├─ Mixpanel (US data residency)
                                     └─ Meta Conversions API
 ```
 Details: [ARCHITECTURE.md](ARCHITECTURE.md). Operations and deploy steps: [SETUP.md](SETUP.md). Latest test results and open findings: [TEST-REPORT.md](TEST-REPORT.md).
